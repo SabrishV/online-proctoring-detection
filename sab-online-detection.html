@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🛡️ Online Proctoring Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #0f0f0f;
+      --text-color: #e0e0e0;
+      --log-bg: #1a1a1a;
+      --border-color: #001f28;
+      --accent-gradient: linear-gradient(135deg, #00c8ff, #0077cc);
+    }
+
+    .light-mode {
+      --bg-color: #ffffff;
+      --text-color: #1a1a1a;
+      --log-bg: #f0f0f0;
+      --border-color: #0077cc;
+      --accent-gradient: linear-gradient(135deg, #0077cc, #00c8ff);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg-color);
+      color: var(--text-color);
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    header {
+      text-align: center;
+      padding: 2rem 1rem 1rem;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      margin: 0;
+    }
+
+    .divider {
+      height: 4px;
+      width: 150px;
+      margin: 10px auto 20px;
+      background: var(--accent-gradient);
+      border-radius: 2px;
+    }
+
+    .toggle-container {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .toggle-container button {
+      padding: 0.6rem 1.2rem;
+      margin: 0 10px;
+      cursor: pointer;
+      background: var(--accent-gradient);
+      color: #fff;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 200, 255, 0.2);
+      transition: transform 0.2s;
+    }
+
+    .toggle-container button:hover {
+      transform: scale(1.05);
+    }
+
+    .log-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      padding: 0 20px 40px;
+    }
+
+    .log-box {
+      flex: 1;
+      min-width: 300px;
+      background: var(--log-bg);
+      padding: 15px;
+      max-height: 300px;
+      overflow-y: auto;
+      border-radius: 14px;
+      border: 2px solid transparent;
+      background-clip: padding-box;
+      position: relative;
+      box-shadow: 0 0 15px rgba(0, 200, 255, 0.2);
+    }
+
+    .log-box {
+  flex: 1;
+  min-width: 300px;
+  background: var(--log-bg);
+  padding: 15px;
+  max-height: 300px;
+  overflow-y: auto;
+  border-radius: 14px;
+  position: relative;
+  border: 2px solid transparent;
+  background-image: 
+    var(--accent-gradient), 
+    var(--log-bg);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  box-shadow: 0 0 15px rgba(0, 200, 255, 0.2);
+}
+
+
+    .log-box h3 {
+      margin-top: 0;
+      font-weight: 600;
+    }
+
+    .log-box div {
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🛡️ Sab's Online Proctoring Detector</h1>
+    <div class="divider"></div>
+  </header>
+
+  <div class="toggle-container">
+    <button id="themeToggle">🌓 Toggle Light/Dark Mode</button>
+    <button id="fullscreenBtn">🖥️ Start Fullscreen</button>
+  </div>
+
+  <main class="log-container">
+    <section class="log-box"><h3>🔄 Tab & App Switch Logs</h3><div id="tab-app-log"></div></section>
+    <section class="log-box"><h3>🖱️ Mouse Movements</h3><div id="mouse-log"></div></section>
+    <section class="log-box"><h3>⌨️ Keyboard Presses</h3><div id="keyboard-log"></div></section>
+    <section class="log-box"><h3>📺 Fullscreen Events</h3><div id="fullscreen-log"></div></section>
+    <section class="log-box"><h3>🖥️ Multiple Monitor Detection</h3><div id="monitor-log"></div></section>
+    <section class="log-box"><h3>🔍 DevTools Detection</h3><div id="devtools-log"></div></section>
+  </main>
+
+  <script>
+    const logEvent = (id, message) => {
+      const container = document.getElementById(id);
+      const time = new Date().toLocaleTimeString();
+      const entry = document.createElement('div');
+      entry.textContent = `[${time}] ${message}`;
+      container?.prepend(entry);
+    };
+
+    // Tab & focus detection
+    document.addEventListener("visibilitychange", () =>
+      logEvent("tab-app-log", document.hidden ? "User switched tab ❌" : "User returned ✅")
+    );
+    window.addEventListener("blur", () => logEvent("tab-app-log", "User left browser ❌"));
+    window.addEventListener("focus", () => logEvent("tab-app-log", "User returned to browser ✅"));
+
+    // Mouse and keyboard tracking
+    document.addEventListener("mousemove", e =>
+      logEvent("mouse-log", `Mouse at (${e.clientX}, ${e.clientY})`)
+    );
+    document.addEventListener("keydown", e =>
+      logEvent("keyboard-log", `Key pressed: ${e.key}`)
+    );
+
+    // Fullscreen activation
+    document.getElementById("fullscreenBtn").addEventListener("click", () => {
+      const docEl = document.documentElement;
+      if (docEl.requestFullscreen) {
+        docEl.requestFullscreen();
+      } else if (docEl.webkitRequestFullscreen) { // Safari
+        docEl.webkitRequestFullscreen();
+      }
+    });
+
+    // Fullscreen change detection
+    document.addEventListener("fullscreenchange", () => {
+      if (!document.fullscreenElement) {
+        logEvent("fullscreen-log", "User exited fullscreen mode! ❌");
+      } else {
+        logEvent("fullscreen-log", "User entered fullscreen mode ✅");
+      }
+    });
+
+    // Multiple monitors detection
+    setInterval(() => {
+      if (window.screen.availWidth > window.innerWidth + 100) {
+        logEvent("monitor-log", "User might be using multiple monitors! ❗");
+      }
+    }, 5000);
+
+    // DevTools detection
+    setInterval(() => {
+      if (
+        window.outerWidth - window.innerWidth > 100 ||
+        window.outerHeight - window.innerHeight > 100
+      ) {
+        logEvent("devtools-log", "DevTools (Inspect Element) opened! 🚨");
+      }
+    }, 2000);
+
+    // Theme toggle
+    document.getElementById("themeToggle").addEventListener("click", () => {
+      document.body.classList.toggle("light-mode");
+    });
+  </script>
+</body>
+</html>

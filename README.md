@@ -39,3 +39,8 @@ All logs are shown in real-time with timestamps, grouped by category.
 
 ---
 
+## 📄 License
+
+This project is licensed under the **MIT License** — you are free to use, modify, and distribute it for personal or commercial projects.
+
+> See the [LICENSE](./LICENSE) file for full details.
